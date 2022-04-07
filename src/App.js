@@ -5,6 +5,7 @@ import Tasks from "./components/Tasks/Tasks";
 import NewTask from "./components/NewTask/NewTask";
 
 function App() {
+  // still need to fix
   const [tasks, isLoading, error, setTasks, fetchTasks] = useFetchTask("GET");
 
   const taskAddHandler = (task) => {
