@@ -1,42 +1,37 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useCallback } from "react";
 
-const useFetchTask = (method = "GET") => {
+const useFetchTask = (requestCongfig, applyData) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [tasks, setTasks] = useState([]);
 
-  const fetchTasks = async (taskText) => {
+  const sentHTTP = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await fetch(
-        "https://react-5826f-default-rtdb.firebaseio.com/tasks.json"
-      );
+      const response = await fetch(requestCongfig.url, {
+        method: requestCongfig.method ? requestCongfig.method : "GET",
+        headers: requestCongfig.headers ? requestCongfig.headers : {},
+        body: JSON.stringify(requestCongfig.body ? requestCongfig.body : {}),
+      });
 
       if (!response.ok) {
         throw new Error("Request failed!");
       }
 
       const data = await response.json();
-      console.log(data);
 
-      const loadedTasks = [];
-
-      for (const taskKey in data) {
-        loadedTasks.push({ id: taskKey, text: data[taskKey].text });
-      }
-
-      console.log(loadedTasks);
-
-      setTasks(loadedTasks);
-      console.log(tasks);
+      applyData(data);
     } catch (err) {
       setError(err.message || "Something went wrong!");
     }
     setIsLoading(false);
-  };
+  }, [requestCongfig, applyData]);
 
-  return [isLoading, tasks, error, setTasks, fetchTasks];
+  return {
+    isLoading,
+    error,
+    sentHTTP,
+  };
 };
 
 export default useFetchTask;
